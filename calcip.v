@@ -4,16 +4,15 @@ input [1:0] opc;
 input clk;
 output reg [7:0] result;
 
-wire [7:0] sum, diff, prod, quot; // Intermediate results
-
+wire [7:0] sum, diff, prod, quot; 
 // Addition using half and full adders
-wire c1, c2, c3, c4; // Carry bits for addition
+wire c1, c2, c3, c4; // Carry bits 
 half_adder ha1(a[0], b[0], sum[0], c1);
 full_adder fa1(a[1], b[1], c1, sum[1], c2);
 full_adder fa2(a[2], b[2], c2, sum[2], c3);
 full_adder fa3(a[3], b[3], c3, sum[3], c4);
 
-assign sum[4] = c4;  // Carry from MSB addition
+assign sum[4] = c4;  
 assign sum[7:5] = 3'b000;  // The remaining upper bits are zero
 
 // Subtraction using XOR and full adders
@@ -27,12 +26,12 @@ full_adder fa7(a[3], b_neg[3], borrow3, diff[3], borrow4);
 
 assign diff[7:4] = 4'b0000; 
 
-multiplier m1(a, b, clk, prod);  // Multiplication module with product stored in register
+    multiplier m1(a, b, clk, prod);  // Multiplication module instantiation
 
 // Division with error handling (division by 0)
 assign quot = (b != 0) ? a / b : 8'b00000000;
 
-// Multiplexer to choose between operations
+
 always @(posedge clk) begin
     case(opc)
         2'b00: result <= sum;
@@ -69,21 +68,21 @@ module multiplier(a, b, clk, prod);
     input clk;
     output reg [7:0] prod;
 
-    reg [7:0] p0, p1, p2, p3; // Shifted partial products
+    reg [7:0] p0, p1, p2, p3; 
     reg [7:0] temp_sum1, temp_sum2;
 
     always @(posedge clk) begin
-        // Compute partial products
-        p0 = {4'b0000, a & {4{b[0]}}};  // No shift needed
-        p1 = {3'b000, a & {4{b[1]}}, 1'b0};  // Shift left by 1
-        p2 = {2'b00, a & {4{b[2]}}, 2'b00};  // Shift left by 2
-        p3 = {1'b0, a & {4{b[3]}}, 3'b000};  // Shift left by 3
+      
+        p0 = {4'b0000, a & {4{b[0]}}};  
+        p1 = {3'b000, a & {4{b[1]}}, 1'b0};  
+        p2 = {2'b00, a & {4{b[2]}}, 2'b00};  
+        p3 = {1'b0, a & {4{b[3]}}, 3'b000};  
 
-        // Add partial products
-        temp_sum1 = p0 + p1;  // First two partial products
-        temp_sum2 = p2 + p3;  // Next two partial products
+       
+        temp_sum1 = p0 + p1;  
+        temp_sum2 = p2 + p3;  
 
-        prod <= temp_sum1 + temp_sum2;  // Final result
+        prod <= temp_sum1 + temp_sum2;  
     end
 endmodule
 
